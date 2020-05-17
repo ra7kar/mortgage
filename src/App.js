@@ -79,7 +79,7 @@ export default () => {
           <div className="col-sm-4">
             <div>
               <h2>Line of Credit</h2>
-              <label>Recurring Credit</label>
+              <label2>Recurring Credit</label2>
               <input
                 maxLength={7}
                 value={recurringCredit}
@@ -87,7 +87,7 @@ export default () => {
               />
             </div>
             <div>
-              <label>Credit Interest</label>
+              <label2>Credit Interest</label2>
               <input
                 type="number"
                 step={0.1}
@@ -96,12 +96,21 @@ export default () => {
               />
             </div>
             <div>
-              <label>Service Fees</label>
+              <label2>Service Fees</label2>
               <input
                 type="number"
                 step={0.1}
                 value={serviceFee}
                 onChange={e => setServiceFee(e.target.value)}
+              />
+            </div>
+            <div>
+              <label2>Monthly Payment</label2>
+              <input
+                type="number"
+                step={0.1}
+                value={monthlyCreditPayment}
+                onChange={e => setMonthlyCreditPayment(e.target.value)}
               />
             </div>
           </div>
@@ -114,69 +123,6 @@ export default () => {
                 maxLength={5}
                 value={monthlyOverpayment}
                 onChange={e => setMonthlyOverpayment(e.target.value)}
-              />
-            </div>
-            <div>
-              <label>Year</label>
-              <label>Month</label>
-              <label>Amount</label>
-            </div>
-            {overpayments.map(({ year, month, amount }, i) => (
-              <div key={i}>
-                <input
-                  type="number"
-                  min="0"
-                  max={years}
-                  value={year}
-                  name="year"
-                  onChange={updateOverpayment(i)}
-                />
-                <input
-                  type="number"
-                  min="1"
-                  max="12"
-                  value={month}
-                  name="month"
-                  onChange={updateOverpayment(i)}
-                />
-                <input
-                  type="text"
-                  value={amount}
-                  name="amount"
-                  onChange={updateOverpayment(i)}
-                />
-
-                {i === overpayments.length - 1 ? (
-                  <button
-                    className="btn btn-xs"
-                    onClick={() =>
-                      setOverpayments([...overpayments, defaultOverpayment])
-                    }
-                  >
-                    +
-                  </button>
-                ) : (
-                  <button
-                    className="btn btn-xs"
-                    onClick={() =>
-                      setOverpayments(overpayments.filter((_, j) => j !== i))
-                    }
-                  >
-                    X
-                  </button>
-                )}
-              </div>
-            ))}
-          </div>
-          <div className="col-sm-4">
-            <div>
-              <h2>Credit Line Payment</h2>
-              <label>Monthly</label>
-              <input
-                type="number"
-                maxLength={5}
-                value={monthlyCreditPayment}
-                onChange={e => setMonthlyCreditPayment(e.target.value)}
               />
             </div>
             <div>
