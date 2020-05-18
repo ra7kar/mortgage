@@ -4,16 +4,22 @@ import './App.css';
 
 import Table from './Table';
 import Chart from './Chart';
-import calculate from './calculations';
+import calculateMortgage from './Mortgage';
 
 const defaultOverpayment = { month: '1', year: '0', amount: '0' };
 
 export default () => {
-  const [initial, setInitial] = useState('200000');
-  const [rate, setRate] = useState('5');
-  const [years, setYears] = useState('25');
+  const [initial, setInitial] = useState('220000');
+  const [rate, setRate] = useState('3.375');
+  const [years, setYears] = useState('30');
   const [monthlyOverpayment, setMonthlyOverpayment] = useState('0');
   const [overpayments, setOverpayments] = useState([defaultOverpayment]);
+
+  // Line of credit calculation
+  const [recurringCredit, setRecurringCredit] = useState('15000');
+  const [creditInterest, setCreditInterest] = useState('25.00');
+  const [serviceFee, setServiceFee] = useState('2.5');
+  const [monthlyCreditPayment, setMonthlyCreditPayment] = useState('1500');
 
   const updateOverpayment = index => ({ target }) =>
     setOverpayments(
@@ -24,12 +30,16 @@ export default () => {
       )
     );
 
-  const { monthlyPayment, payments } = calculate(
+  const { monthlyPayment, mortgagePayments, creditPayments } = calculateMortgage(
     +initial,
     +years,
     +rate,
     +monthlyOverpayment,
-    overpayments
+    overpayments,
+    +recurringCredit,
+    +creditInterest,
+    +serviceFee,
+    +monthlyCreditPayment,
   );
 
   return (
@@ -67,6 +77,44 @@ export default () => {
                 step={0.1}
                 value={rate}
                 onChange={e => setRate(e.target.value)}
+              />
+            </div>
+          </div>
+          <div className="col-sm-4">
+            <div>
+              <h2>Line of Credit</h2>
+              <label>Recurring Credit</label>
+              <input
+                maxLength={7}
+                value={recurringCredit}
+                onChange={e => setRecurringCredit(e.target.value)}
+              />
+            </div>
+            <div>
+              <label>Credit Interest</label>
+              <input
+                type="number"
+                step={0.1}
+                value={creditInterest}
+                onChange={e => setCreditInterest(e.target.value)}
+              />
+            </div>
+            <div>
+              <label>Service Fees</label>
+              <input
+                type="number"
+                step={0.1}
+                value={serviceFee}
+                onChange={e => setServiceFee(e.target.value)}
+              />
+            </div>
+            <div>
+              <label>Montly Payment</label>
+              <input
+                type="number"
+                step={0.1}
+                value={monthlyCreditPayment}
+                onChange={e => setMonthlyCreditPayment(e.target.value)}
               />
             </div>
           </div>
@@ -140,10 +188,12 @@ export default () => {
                 {(+monthlyOverpayment + monthlyPayment).toFixed(2)}
               </span>
             </h2>
-            <Chart payments={payments} />
+            <Chart payments={mortgagePayments} />
+            <Chart payments={creditPayments} />
           </div>
         </div>
-        <Table className="col-sm-4" payments={payments} />
+        <Table className="col-sm-4" payments={mortgagePayments} />
+        <Table className="col-sm-4" payments={creditPayments} />
       </div>
     </div>
   );
