@@ -15,11 +15,20 @@ export default () => {
   const [monthlyOverpayment, setMonthlyOverpayment] = useState('0');
   const [overpayments, setOverpayments] = useState([defaultOverpayment]);
 
-  // Line of credit calculation
-  const [recurringCredit, setRecurringCredit] = useState('15000');
-  const [creditInterest, setCreditInterest] = useState('25.00');
-  const [serviceFee, setServiceFee] = useState('2.5');
-  const [monthlyCreditPayment, setMonthlyCreditPayment] = useState('1500');
+  // Recurring line of credit
+  const [recurringCreditMin, setRecurringCreditMin] = useState('1000');
+  const [recurringCreditMax, setRecurringCreditMax] = useState('20000');
+  const [recurringCreditInterval, setRecurringCreditInterval] = useState('500');
+
+  // Monthly payment for recurring line of credit
+  const [monthlyCreditPaymentMin, setMonthlyCreditPaymentMin] = useState('100');
+  const [monthlyCreditPaymentMax, setMonthlyCreditPaymentMax] = useState('2000');
+  const [monthlyCreditPaymentInterval, setMonthlyCreditPaymentInterval] = useState('50');
+
+  // Fees associated with recurring credit
+  // Note: 0% implies that loan is taken from self and paid back to self
+  const [creditInterest, setCreditInterest] = useState('0.00');
+  const [serviceFee, setServiceFee] = useState('0.00');
 
   const updateOverpayment = index => ({ target }) =>
     setOverpayments(
