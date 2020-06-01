@@ -16,11 +16,13 @@ export default () => {
   const [overpayments, setOverpayments] = useState([defaultOverpayment]);
 
   // Recurring line of credit
+  const [recurringCredit, setRecurringCredit] = useState('10000');
   const [recurringCreditMin, setRecurringCreditMin] = useState('1000');
   const [recurringCreditMax, setRecurringCreditMax] = useState('20000');
   const [recurringCreditInterval, setRecurringCreditInterval] = useState('500');
 
   // Monthly payment for recurring line of credit
+  const [monthlyCreditPayment, setMonthlyCreditPayment] = useState('500');
   const [monthlyCreditPaymentMin, setMonthlyCreditPaymentMin] = useState('100');
   const [monthlyCreditPaymentMax, setMonthlyCreditPaymentMax] = useState('2000');
   const [monthlyCreditPaymentInterval, setMonthlyCreditPaymentInterval] = useState('50');
@@ -91,8 +93,8 @@ export default () => {
           </div>
           <div className="col-sm-4">
             <div>
-              <h2>Line of Credit</h2>
-              <label>Recurring Credit</label>
+              <h2>Recurring Line of Credit</h2>
+              <label>Credit</label>
               <input
                 maxLength={7}
                 value={recurringCredit}
@@ -100,7 +102,34 @@ export default () => {
               />
             </div>
             <div>
-              <label>Credit Interest</label>
+              <label>Min</label>
+              <input
+                type="number"
+                step={0.1}
+                value={recurringCreditMin}
+                onChange={e => setRecurringCreditMin(e.target.value)}
+              />
+            </div>
+            <div>
+              <label>Max</label>
+              <input
+                type="number"
+                step={0.1}
+                value={recurringCreditMax}
+                onChange={e => setRecurringCreditMax(e.target.value)}
+              />
+            </div>
+            <div>
+              <label>Interval</label>
+              <input
+                type="number"
+                step={0.1}
+                value={recurringCreditInterval}
+                onChange={e => setRecurringCreditInterval(e.target.value)}
+              />
+            </div>
+            <div>
+              <label>Interest</label>
               <input
                 type="number"
                 step={0.1}
@@ -109,7 +138,7 @@ export default () => {
               />
             </div>
             <div>
-              <label>Service Fees</label>
+              <label>Fees</label>
               <input
                 type="number"
                 step={0.1}
@@ -117,13 +146,43 @@ export default () => {
                 onChange={e => setServiceFee(e.target.value)}
               />
             </div>
+          </div>
+          <div className="col-sm-4">
             <div>
-              <label>Montly Payment</label>
+              <h2>Monthly Credit Payments</h2>
+              <label>Payment</label>
               <input
                 type="number"
                 step={0.1}
                 value={monthlyCreditPayment}
                 onChange={e => setMonthlyCreditPayment(e.target.value)}
+              />
+            </div>
+            <div>
+              <label>Min</label>
+              <input
+                type="number"
+                step={0.1}
+                value={monthlyCreditPaymentMin}
+                onChange={e => setMonthlyCreditPaymentMin(e.target.value)}
+              />
+            </div>
+            <div>
+              <label>Max</label>
+              <input
+                type="number"
+                step={0.1}
+                value={monthlyCreditPaymentMax}
+                onChange={e => setMonthlyCreditPaymentMax(e.target.value)}
+              />
+            </div>
+            <div>
+              <label>Interval</label>
+              <input
+                type="number"
+                step={0.1}
+                value={monthlyCreditPaymentInterval}
+                onChange={e => setMonthlyCreditPaymentInterval(e.target.value)}
               />
             </div>
           </div>
@@ -201,8 +260,7 @@ export default () => {
             <Chart payments={creditPayments} />
           </div>
         </div>
-        <Table className="col-sm-4" payments={mortgagePayments} />
-        <Table className="col-sm-4" payments={creditPayments} />
+        <Table className="col-sm-4" rows={[{Name:'as', Value: 10}, {Name:"name", Value:20}]} />
       </div>
     </div>
   );

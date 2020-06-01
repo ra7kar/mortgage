@@ -1,51 +1,48 @@
 import React from 'react';
 
-export default ({ payments, className }) => {
-  let output = payments
-    .filter((year, i) => i > 0 && (year.balance > 0 || year.interestYearly > 0))
-    .reduce(
-      (acc, year, index) => ({
-        interestTotal: acc.interestTotal + year.interestYearly,
-        overpaymentTotal: acc.overpaymentTotal + year.overpayment,
-        rows: [
-          ...acc.rows,
-          [
-            year.partial ? year.partial + 'm' : index + 1,
-            Math.round(year.interestYearly || 0),
-            Math.round(year.overpayment),
-            Math.round(year.balance)
-          ]
-        ]
-      }),
-      { interestTotal: 0, overpaymentTotal: 0, rows: [] }
-    );
+export default ({ className, rows}) => {
+  let acc = new Map()
+  rows.forEach(row => {
+    for (const key in row) {
+      const val = row[key]
+      const accVal = acc[key] == null ? 0 : acc[key]
+      acc[key] = isNaN(val) ? null : accVal + val
+    }
+  })
+
+  // acc.keys() is returning an empty list
+  // iterating over acc manually to extract keys
+  let keys = []
+  for (const key in acc){
+    keys.push(key)
+  }
 
   return (
     <table className={className}>
       <thead>
         <tr>
-          <th>Years</th>
-          <th>Interest</th>
-          <th>Overpayment</th>
-          <th>Balance</th>
+          <th> Index </th>
+          {keys.map((d) => (
+            <th> {d.toLocaleString()} </th>
+          ))}
         </tr>
       </thead>
       <tbody>
-        {output.rows.map((row, index) => (
+        {rows.map((row, index) => (
           <tr key={index}>
-            {row.map((d, i) => (
-              <td key={i}>{d.toLocaleString()}</td>
+            <td> {index + 1} </td>
+            {keys.map((d, i) => (
+              <td key={i}>{row[d].toLocaleString()}</td>
             ))}
           </tr>
         ))}
       </tbody>
       <tfoot>
         <tr>
-          <td colSpan={2}>
-            {Math.round(output.interestTotal).toLocaleString()}
-          </td>
-          <td>{Math.round(output.overpaymentTotal).toLocaleString()}</td>
-          <td />
+          <td> </td>
+          {keys.map((d) => (
+            <td> {(acc[d] != null) ? acc[d].toLocaleString() : 'N/A'} </td>
+          ))}
         </tr>
       </tfoot>
     </table>
