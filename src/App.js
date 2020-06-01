@@ -8,6 +8,16 @@ import calculateMortgage from './Mortgage';
 
 const defaultOverpayment = { month: '1', year: '0', amount: '0' };
 
+function generateRange(min, max, step){
+  let arr = [];
+  for(let i = min; i <= max; i += step){
+     arr.push(i);
+  }
+  
+  console.log(arr)
+  return arr;
+}
+
 export default () => {
   const [initial, setInitial] = useState('220000');
   const [rate, setRate] = useState('3.375');
@@ -16,15 +26,15 @@ export default () => {
   const [overpayments, setOverpayments] = useState([defaultOverpayment]);
 
   // Recurring line of credit
-  const [recurringCredit, setRecurringCredit] = useState('10000');
+  const [recurringCredit, setRecurringCredit] = useState('0');
   const [recurringCreditMin, setRecurringCreditMin] = useState('1000');
-  const [recurringCreditMax, setRecurringCreditMax] = useState('20000');
+  const [recurringCreditMax, setRecurringCreditMax] = useState('1000');
   const [recurringCreditInterval, setRecurringCreditInterval] = useState('500');
 
   // Monthly payment for recurring line of credit
-  const [monthlyCreditPayment, setMonthlyCreditPayment] = useState('500');
+  const [monthlyCreditPayment, setMonthlyCreditPayment] = useState('0');
   const [monthlyCreditPaymentMin, setMonthlyCreditPaymentMin] = useState('100');
-  const [monthlyCreditPaymentMax, setMonthlyCreditPaymentMax] = useState('2000');
+  const [monthlyCreditPaymentMax, setMonthlyCreditPaymentMax] = useState('100');
   const [monthlyCreditPaymentInterval, setMonthlyCreditPaymentInterval] = useState('50');
 
   // Fees associated with recurring credit
@@ -41,17 +51,46 @@ export default () => {
       )
     );
 
-  const { monthlyPayment, mortgagePayments, creditPayments } = calculateMortgage(
-    +initial,
-    +years,
-    +rate,
-    +monthlyOverpayment,
-    overpayments,
-    +recurringCredit,
-    +creditInterest,
-    +serviceFee,
-    +monthlyCreditPayment,
-  );
+  
+  let interests = []
+  generateRange(+recurringCreditMin, +recurringCreditMax, +recurringCreditInterval).forEach( x => {
+    generateRange(+monthlyCreditPaymentMin, 
+      +monthlyCreditPaymentMax, +monthlyCreditPaymentInterval).forEach( y => {
+      const { monthlyPayment, interestTotal, loanPeriod, payments} = calculateMortgage(
+        +initial,
+        +years,
+        +rate,
+        +monthlyOverpayment,
+        overpayments,
+        +x,
+        +creditInterest,
+        +serviceFee,
+        +y,
+      );
+
+      const toYMStr = ((months) => `${Math.trunc(months/12)}y ${months%12}m`)
+      interests.push({
+        "Recurring Credit": x,
+        "Monthly Credit Payment": y,
+        "Credit interval": toYMStr(x/y),
+        "Loan Period": toYMStr(loanPeriod),
+        "Interest": interestTotal
+      })
+
+    })
+  })
+
+  interests.sort(function(a, b) {
+    return a["Interest"] - b["Interest"];
+  })
+
+  const addAccumulator = ((x, y) => x + y)
+  const accumulators = {
+    "Mortgage Interest": addAccumulator,
+    "Mortgage Overpayment": addAccumulator,
+    "Credit Interest": addAccumulator,
+    "Credit Payment": addAccumulator,
+  }
 
   return (
     <div>
@@ -253,14 +292,15 @@ export default () => {
             <h2>
               Monthly Payment
               <span className="money">
-                {(+monthlyOverpayment + monthlyPayment).toFixed(2)}
+                {/* {(+monthlyOverpayment + monthlyPayment).toFixed(2)} */}
               </span>
             </h2>
-            <Chart payments={mortgagePayments} />
-            <Chart payments={creditPayments} />
+            {/* <Chart payments={mortgagePayments} />
+            <Chart payments={creditPayments} /> */}
           </div>
         </div>
-        <Table className="col-sm-4" rows={[{Name:'as', Value: 10}, {Name:"name", Value:20}]} />
+        <Table className="col-sm-4" rows={interests} accumulators={accumulators} />
+        {/* <Table className="col-sm-4" rows={mortgagePayments} accumulators={accumulators} /> */}
       </div>
     </div>
   );

@@ -26,66 +26,59 @@ export default function calculatePayments(
   // where no overpayment is done 
   let baseline = initial;
 
-  let mortgagePayments = [{overpayment: 0, balance, baseline}];
-  let creditPayments = [{balance: recurringCredit}];
+  let mortgagePayments = [];
 
-  // partial used to convey completion of loan payment mid-year
-  let partial;
+  let interestTotal = 0;
+  let loanPeriod = 0
 
   for (let year = 0; year < years; year++) {
-    let interestYearly = 0;
-    let creditInterestYearly = 0;
-    let overpaymentYearly = 0;
     for (let month = 1; month <= 12; month++) {
       let overpayment = overpayments
         .filter(x => +x.year === year && +x.month === month)
         .reduce((acc, val) => acc + +val.amount, 0);
+      overpayment = overpayment + +monthlyOverpayment
 
+      let creditInterestMonthly = 0;
       if (balance > 0 && creditBalance === 0){
         creditBalance = recurringCredit;
         overpayment += creditBalance;
-        creditInterestYearly += creditBalance * (serviceFee/100)
+        creditInterestMonthly += creditBalance * (serviceFee/100)
       } 
 
-      creditInterestYearly += monthlyCreditRate * creditBalance;
+      creditInterestMonthly += monthlyCreditRate * creditBalance;
       creditBalance -= monthlyCreditPayment
       creditBalance = Math.max(creditBalance, 0)
 
       let interestMonth = balance * monthlyRatePct;
-      interestYearly += interestMonth;
-      overpaymentYearly += overpayment;
-      
+      interestTotal += interestMonth + creditInterestMonthly
+
       // principal payment is monthlyPayment - interestMonth
-      balance -=
-        monthlyPayment + monthlyOverpayment + overpayment - interestMonth;
       baseline -= monthlyPayment - baseline * monthlyRatePct;
+
+      if (balance != 0)
+      { 
+        loanPeriod += 1
+      }
+
+      const balanceToBe = balance - 
+        (monthlyPayment + monthlyOverpayment + overpayment - interestMonth);
+      balance = Math.max(balanceToBe, 0)
+
+      mortgagePayments.push({
+        "Mortgage Baseline": baseline,
+        "Mortgage Balance": balance,
+        "Mortgage Interest": interestMonth,
+        "Mortgage Overpayment": overpayment,
+        "Credit Interest": creditInterestMonthly,
+        "Credit Balance": creditBalance,
+        "Credit Payment": monthlyCreditPayment,
+      });
 
       if (balance <= 0) {
         balance = 0;
-        if (partial === undefined && month !== 12) {
-          partial = month;
-        }
       }
     }
-    creditPayments.push({
-      baseline: 0,
-      interestYearly: creditInterestYearly,
-      balance: creditBalance,
-      partial,
-      overpayment: monthlyCreditPayment,
-    })
-
-    mortgagePayments.push({
-      baseline,
-      interestYearly,
-      balance,
-      partial,
-      overpayment: overpaymentYearly + +monthlyOverpayment * (partial || 12)
-    });
-    if (partial) partial = 0;
   }
 
-  console.log(creditPayments)
-
-  return { monthlyPayment, mortgagePayments, creditPayments };
+  return { monthlyPayment, interestTotal, loanPeriod, mortgagePayments};
 }

@@ -1,12 +1,13 @@
 import React from 'react';
 
-export default ({ className, rows}) => {
+export default ({ className, rows, accumulators=new Map()}) => {
   let acc = new Map()
   rows.forEach(row => {
     for (const key in row) {
       const val = row[key]
       const accVal = acc[key] == null ? 0 : acc[key]
-      acc[key] = isNaN(val) ? null : accVal + val
+      const accumulator = (accumulators[key] != null)? accumulators[key] : ((accVal, val) => "N/A")
+      acc[key] = accumulator(accVal, val)
     }
   })
 
